@@ -3,9 +3,13 @@
 # Conventional Commits land on main -> this action keeps a "Release PR" open that
 # bumps the version in pyproject.toml + src/face_fit/__init__.py and updates
 # CHANGELOG.md (python release-type). Merging that PR cuts a `vX.Y.Z` tag and a
-# GitHub Release. Humans never hand-pick or hand-edit a version; the human gate is
-# adding the "release: approved" label and merging the Release PR (see ci.yml's
+# GitHub Release. The human gate is the "release: approved" label (see ci.yml's
 # release-gate job and CONTRIBUTING.md).
+#
+# Runs as a GitHub App (not GITHUB_TOKEN) so its tag push is allowed by the
+# protect-version-tags ruleset's App bypass, making the App the single authorized
+# creator of `v*` tags. Credentials live in the `release-please` environment
+# (deployment branch policy: main only). With the secrets unset the job no-ops.
 name: release-please
 
 on:
@@ -13,7 +17,6 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Never cancel a release-cut in flight; only one runs per ref anyway.
 concurrency:
   group: release-please-${{ github.ref }}
   cancel-in-progress: false
@@ -25,12 +28,31 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: release-please
     permissions:
       contents: write # create the release commit, tag and GitHub Release
       pull-requests: write # open / maintain the Release PR
+    env:
+      HAS_APP: ${{ secrets.RELEASE_PLEASE_CLIENT_ID != '' && secrets.RELEASE_PLEASE_PRIVATE_KEY != '' }}
     steps:
-      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+      - name: Mint GitHub App token
+        id: app-token
+        if: env.HAS_APP == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          app-id: ${{ secrets.RELEASE_PLEASE_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}
+
+      - name: release-please
+        if: env.HAS_APP == 'true'
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Dormant notice (App not configured)
+        if: env.HAS_APP != 'true'
+        run: |
+          echo "::notice::release-please is dormant — set RELEASE_PLEASE_CLIENT_ID and"
+          echo "RELEASE_PLEASE_PRIVATE_KEY in the release-please environment to activate."
