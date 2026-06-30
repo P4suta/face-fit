@@ -7,10 +7,10 @@
 
 ## Context
 
-Detection (model load + inference) is the only expensive step; the composition
-+ render is milliseconds. Two needs exposed this: parameter tweaking (re-render
-the same photo many times) and batch (many photos). Loading the model per image
-wastes seconds each time.
+Detection (model load + inference) is the only expensive step; composition and
+rendering take milliseconds. Two needs exposed this: parameter tweaking
+(re-render the same photo many times) and batch (many photos). Loading the model
+per image wastes seconds each time.
 
 ## Decision
 
