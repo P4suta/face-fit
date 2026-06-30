@@ -124,3 +124,20 @@ jobs:
           enable-cache: true
       - run: uv sync --group dev
       - run: uv run pytest
+
+  # Single required status check for branch protection: green only when every
+  # gating job (hygiene, quality, the whole test matrix) succeeded. Skipped
+  # PR-only jobs (pr-title, release-gate) are intentionally not gated here.
+  ci-required:
+    if: always()
+    needs: [hygiene, quality, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify required jobs succeeded
+        run: |
+          if echo "${{ join(needs.*.result, ',') }}" | grep -qE 'failure|cancelled'; then
+            echo "::error::a required job failed or was cancelled"
+            exit 1
+          fi
+          echo "all required jobs passed"
