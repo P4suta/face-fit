@@ -1,0 +1,15 @@
+default: true
+
+# Allow long lines for tables and reference-style links.
+MD013: false
+# Allow inline HTML — needed for ADRs that embed diagrams or details/summary.
+MD033: false
+# Permit duplicate headings across sibling files (e.g. ADRs share section names).
+MD024:
+  siblings_only: true
+# Permit bare URLs in inline contexts (issue references, command output).
+MD034: false
+# Allow either `*` or `-` as the unordered-list marker.
+MD004: false
+# Some files legitimately do not start with an H1 (issue/PR templates, fragments).
+MD041: false

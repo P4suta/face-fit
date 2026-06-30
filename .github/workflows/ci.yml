@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancel superseded PR runs; never cancel main (post-merge lineage).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Least privilege by default; jobs that need more request it themselves.
+permissions:
+  contents: read
+
+jobs:
+  # Cheap ubuntu hygiene tier — no deps, fast fail signal.
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      # Lint the workflow YAML itself (syntax, ${{ }} expression types, shellcheck).
+      - uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2.2.0
+      # Spell-check code + docs (reads _typos.toml).
+      - uses: crate-ci/typos@37bb98842b0d8c4ffebdb75301a13db0267cef89 # v1.47.2
+      - uses: uncenter/setup-taplo@b18c8c8302695fe63d6853bc004006215ac52b91 # v2
+        with:
+          version: "0.10.0"
+      # fmt --check enforces TOML *formatting* (taplo.toml), not just validity.
+      - run: taplo fmt --check
+      - uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e # v20.0.0
+        with:
+          globs: |
+            **/*.md
+            !site
+            !htmlcov
+            !.venv
+            !.nox
+            !**/CHANGELOG.md
+
+  # Python lint + type check.
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --group dev
+      - name: Ruff lint
+        run: uv run ruff check --output-format=github .
+      - name: Ruff format check
+        run: uv run ruff format --check .
+      - name: ty
+        run: uv run ty check
+      - name: yamllint
+        run: uv run yamllint .
+
+  # Conventional-Commits PR title (authoritative gate for squash-merges).
+  pr-title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Defence in depth: a release-please Release PR (labelled "autorelease: pending")
+  # cannot merge until a human adds "release: approved" — cutting a release is an
+  # explicit act, not an accidental merge. Every non-release PR passes.
+  release-gate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Require an explicit approval label on a Release PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          labels=$(gh pr view "$PR" --repo "$REPO" --json labels -q '.labels[].name')
+          if echo "$labels" | grep -qx "autorelease: pending"; then
+            if echo "$labels" | grep -qx "release: approved"; then
+              echo "Release PR carries 'release: approved' — gate open."
+            else
+              echo "::error::This is a release PR. Add the 'release: approved' label to allow merge."
+              exit 1
+            fi
+          else
+            echo "Not a release PR — gate passes."
+          fi
+
+  # Unit tests across every supported Python.
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        include:
+          - os: windows-latest
+            python: "3.12"
+          - os: windows-latest
+            python: "3.14"
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --group dev
+      - run: uv run pytest

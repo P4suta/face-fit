@@ -1,0 +1,9 @@
+# Normalize text to LF (consistent on Windows too)
+* text=auto eol=lf
+
+# Do not convert binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.task binary
+*.ico binary

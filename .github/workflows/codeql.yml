@@ -1,0 +1,43 @@
+# Static analysis for the Python source and the GitHub Actions workflows.
+#
+# Two independent analyses, both build-mode none (Python is interpreted; Actions
+# needs no build), so each runs on cheap ubuntu:
+#   - python  — semantic CodeQL queries over src/ and tests/.
+#   - actions — re-checks workflow GITHUB_TOKEN permissions and untrusted-input
+#     patterns so the missing-permissions class can't silently regress.
+name: codeql
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "23 4 * * 1"
+
+# Least privilege: read-only at the top level; the job requests the
+# security-events write it needs to upload SARIF.
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      security-events: write # upload CodeQL SARIF results
+      contents: read # checkout
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, actions]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          category: "/language:${{ matrix.language }}"

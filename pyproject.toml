@@ -1,0 +1,154 @@
+[project]
+name = "face-fit"
+version = "0.1.0"
+description = "Auto-fit a photo into an ID-photo composition (face 70-80%, centered, level)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "P4suta" }]
+keywords = [
+    "face",
+    "id-photo",
+    "passport-photo",
+    "portrait",
+    "mediapipe",
+    "opencv",
+    "image-processing",
+    "cli",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Typing :: Typed",
+]
+dependencies = [
+    "mediapipe>=0.10.14",
+    "numpy>=1.26",
+    "pillow>=10.2",
+    "opencv-python>=4.9",
+    "typer>=0.12",
+    "rich>=13",
+]
+
+[project.urls]
+Homepage = "https://github.com/P4suta/face-fit"
+Repository = "https://github.com/P4suta/face-fit"
+Issues = "https://github.com/P4suta/face-fit/issues"
+Documentation = "https://p4suta.github.io/face-fit/"
+Changelog = "https://github.com/P4suta/face-fit/blob/main/CHANGELOG.md"
+
+[project.scripts]
+face-fit = "face_fit.cli:app"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9",
+    "ty>=0.0.1a1",
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "nox>=2024.10",
+    "yamllint>=1.35",
+]
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.27",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/face_fit"]
+
+# ---------------------------------------------------------------------------
+# Ruff: lint + format
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "N", # pep8-naming
+    "UP", # pyupgrade
+    "B", # flake8-bugbear
+    "SIM", # flake8-simplify
+    "C4", # flake8-comprehensions
+    "PTH", # flake8-use-pathlib
+    "RUF", # ruff-specific
+    "S", # flake8-bandit
+    "D", # pydocstyle
+    "PL", # pylint
+]
+ignore = [
+    "D203", # 1 blank line before class docstring (conflicts with D211)
+    "D213", # multi-line summary second line (conflicts with D212)
+    "PLR0913", # too many arguments (intentional in compose/cli)
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D", "PLR2004"] # allow assert, skip docstrings, allow magic values
+"noxfile.py" = ["D"]
+
+# ---------------------------------------------------------------------------
+# ty: type checking (Astral)
+# ---------------------------------------------------------------------------
+[tool.ty.environment]
+python-version = "3.13"
+root = ["src"]
+
+[tool.ty.rules]
+# cv2 / mediapipe ship no type stubs; keep unresolved attributes a warning.
+unresolved-attribute = "warn"
+
+# ---------------------------------------------------------------------------
+# pytest + coverage
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--cov=face_fit",
+    "--cov-report=term-missing",
+    "-m",
+    "not integration",
+]
+markers = [
+    "integration: integration tests that need real images, mediapipe and network",
+]
+
+[tool.coverage.run]
+source = ["face_fit"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@(abc\\.)?abstractmethod",
+]

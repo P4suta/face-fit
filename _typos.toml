@@ -1,0 +1,6 @@
+# typos-cli configuration (https://github.com/crate-ci/typos).
+[files]
+# Generated outputs: mkdocs renders the site into site/, pytest/coverage write
+# htmlcov/. typos scans the working tree (not just tracked files), so exclude
+# them here even though .gitignore already keeps them out of git.
+extend-exclude = ["site/", "htmlcov/", "uv.lock"]

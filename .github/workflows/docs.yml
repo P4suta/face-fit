@@ -1,0 +1,49 @@
+name: Deploy docs
+
+# Builds the mkdocs site and publishes it to GitHub Pages.
+# Requires Settings > Pages > Source = "GitHub Actions" (set once after publish).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "src/**"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+# Least privilege: read-only at the top; the deploy job requests Pages + OIDC.
+permissions:
+  contents: read
+
+# One concurrent deploy; let in-progress runs finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # checkout
+      pages: write # publish to GitHub Pages
+      id-token: write # OIDC token the Pages deploy environment requires
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --group docs
+      - name: Build docs (strict)
+        run: uv run mkdocs build --strict
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0

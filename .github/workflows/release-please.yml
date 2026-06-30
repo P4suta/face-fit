@@ -1,0 +1,36 @@
+# release-please — the version/CHANGELOG/tag bot.
+#
+# Conventional Commits land on main -> this action keeps a "Release PR" open that
+# bumps the version in pyproject.toml + src/face_fit/__init__.py and updates
+# CHANGELOG.md (python release-type). Merging that PR cuts a `vX.Y.Z` tag and a
+# GitHub Release. Humans never hand-pick or hand-edit a version; the human gate is
+# adding the "release: approved" label and merging the Release PR (see ci.yml's
+# release-gate job and CONTRIBUTING.md).
+name: release-please
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never cancel a release-cut in flight; only one runs per ref anyway.
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # create the release commit, tag and GitHub Release
+      pull-requests: write # open / maintain the Release PR
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

@@ -1,0 +1,10 @@
+# Accepted / unfixable advisories for the OSV-Scanner gate (osv-scanner.yml).
+#
+# Keep it empty by default. Every entry MUST justify itself (why it can't be
+# fixed, and when to revisit) — an unexplained ignore is a silenced finding.
+#
+# Format:
+#   [[IgnoredVulns]]
+#   id = "GHSA-xxxx-xxxx-xxxx"   # or "PYSEC-YYYY-NNN" / "CVE-YYYY-NNNNN"
+#   # reason: <why this is accepted — no upstream fix, not reachable, etc.>
+#   # revisit after: <date or upstream issue link>

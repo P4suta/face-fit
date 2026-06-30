@@ -1,0 +1,36 @@
+commit-msg:
+  jobs:
+    # Conventional Commits feed release-please's version + CHANGELOG derivation.
+    # The PR-title gate in ci.yml is authoritative for squash-merges; this is the
+    # earlier, local signal. {1} = the commit-message file git hands the hook.
+    # Do not bypass with --no-verify.
+    - name: conventional-commit
+      run: committed --commit-file {1}
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: typos
+      run: typos
+    - name: ruff-check
+      glob: "*.py"
+      run: uv run ruff check --force-exclude {staged_files}
+    - name: ruff-format
+      glob: "*.py"
+      run: uv run ruff format --check --force-exclude {staged_files}
+    - name: taplo
+      glob: "*.toml"
+      # fmt --check (not plain `check`): enforce TOML *formatting*, not just
+      # validity, repo-wide via taplo.toml.
+      run: taplo fmt --check
+    - name: actionlint
+      glob: ".github/workflows/*.yml"
+      run: actionlint
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: types
+      run: uv run ty check
+    - name: test
+      run: uv run pytest

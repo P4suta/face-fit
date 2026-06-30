@@ -1,0 +1,23 @@
+---
+# yamllint (https://yamllint.readthedocs.io/) — relaxed defaults that fit
+# real-world GitHub Actions and issue-template YAML.
+extends: default
+
+# Don't lint generated / vendored trees (.venv, .nox, site, htmlcov, ...).
+ignore-from-file: .gitignore
+
+rules:
+  # Workflow / issue-template YAML routinely runs past 80 columns (URLs,
+  # descriptions, ${{ ... }} expressions). 120 is the practical ceiling; keep it
+  # a warning so length never blocks a commit.
+  line-length:
+    max: 120
+    level: warning
+  # `on:` in a workflow is the canonical Actions trigger key, not a bool.
+  truthy:
+    check-keys: false
+  # `---` document-start is noise for single-document config files.
+  document-start: disable
+  # mkdocs.yml / issue templates nest deeply; don't fight indentation style.
+  comments:
+    min-spaces-from-content: 1

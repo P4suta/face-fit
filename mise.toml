@@ -1,0 +1,31 @@
+# Toolchain pinning for face-fit.
+# This machine manages tools via chezmoi + mise — do NOT install toolchains ad
+# hoc; declare them here and run `mise install`. CI provisions the same set via
+# jdx/mise-action, so local and CI run byte-identical tool versions.
+[tools]
+# Python package/loader + venv manager. The Python interpreter itself is chosen
+# by uv from `.python-version` (3.13); the supported range is 3.10–latest.
+uv = "latest"
+# Task runner (justfile) — the single entry point for lint/type/test/docs.
+just = "1"
+# Git-hook manager. `just setup` runs `lefthook install`; pinning it here closes
+# a reproducibility gap and lets `just doctor` verify it.
+lefthook = "2"
+# Spell-checker for code + docs (reads _typos.toml). Same crate-ci family as
+# committed. cargo backend, binstall-fetched.
+"cargo:typos-cli" = "1"
+# Conventional-Commits linter for the lefthook commit-msg hook — the local guard
+# that keeps release-please's version + CHANGELOG derivation fed with well-formed
+# commits.
+"cargo:committed" = "1"
+# TOML formatter/linter (taplo fmt --check) — enforces pyproject.toml & config
+# formatting repo-wide.
+"cargo:taplo-cli" = "0.10"
+# Lints .github/workflows/*.yml (syntax, ${{ }} expression types, shellcheck over
+# run: blocks). Pinned so workflow edits validate locally before push.
+"github:rhysd/actionlint" = "1.7.12"
+
+[settings]
+# Fetch cargo: backend tools as prebuilt binaries (cargo-binstall) rather than
+# compiling from source — much faster in CI and locally.
+cargo.binstall = true

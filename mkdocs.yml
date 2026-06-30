@@ -1,0 +1,66 @@
+site_name: face-fit
+site_description: Auto-fit a photo into an ID-photo composition
+site_author: P4suta
+site_url: https://p4suta.github.io/face-fit/
+repo_url: https://github.com/P4suta/face-fit
+repo_name: P4suta/face-fit
+copyright: Copyright &copy; 2026 P4suta
+
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - toc.integrate
+
+nav:
+  - Home: index.md
+  - Usage: usage.md
+  - How it works: how-it-works.md
+  - API reference: reference.md
+  - Contributing: contributing.md
+  - Architecture Decisions:
+      - Overview: ADR_INDEX.md
+      - 0001 Record architecture decisions: adr/0001-record-architecture-decisions.md
+      - 0002 Geometric edits only: adr/0002-geometric-edits-only.md
+      - 0003 FaceLandmarker + crown segmentation: adr/0003-mediapipe-landmarker-and-crown-segmentation.md
+      - 0004 Detect-once architecture: adr/0004-detect-once-architecture.md
+      - 0005 Typer + Rich CLI: adr/0005-typer-rich-cli.md
+      - 0006 Support Python 3.10 to latest: adr/0006-support-python-3.10-to-latest.md
+      - ADR template: adr/0000-template.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true

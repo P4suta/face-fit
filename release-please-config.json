@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "include-component-in-tag": false,
+  "tag-separator": "-",
+  "bootstrap-sha": "2218bb9cc157a046b8df9e61b5bc566968df2f74",
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "package-name": "face-fit",
+      "changelog-path": "CHANGELOG.md",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true
+    }
+  }
+}

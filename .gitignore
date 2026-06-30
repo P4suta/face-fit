@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+*.so
+
+# Virtual environments / uv
+.venv/
+.python-version.local
+
+# Test / coverage / type caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ty_cache/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Docs build
+site/
+
+# Working outputs produced by face-fit (do not commit)
+out_*.jpg
+out_*.png
+*_fitted.jpg
+*_debug.png
+out/
+out_*/
+
+# Safety: this tool's inputs are personal ID photos — never commit photographs.
+# (If a sample image is ever genuinely needed, add it with `git add -f`.)
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.heic
+
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
