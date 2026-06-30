@@ -25,7 +25,7 @@ jobs:
       # Lint the workflow YAML itself (syntax, ${{ }} expression types, shellcheck).
       - uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2.2.0
       # Spell-check code + docs (reads _typos.toml).
-      - uses: crate-ci/typos@37bb98842b0d8c4ffebdb75301a13db0267cef89 # v1.47.2
+      - uses: crate-ci/typos@bee27e3a4fd1ea2111cf90ab89cd076c870fce14 # v1.48.0
       - uses: uncenter/setup-taplo@b18c8c8302695fe63d6853bc004006215ac52b91 # v2
         with:
           version: "0.10.0"
