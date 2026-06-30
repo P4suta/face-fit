@@ -13,3 +13,5 @@ MD034: false
 MD004: false
 # Some files legitimately do not start with an H1 (issue/PR templates, fragments).
 MD041: false
+# Don't enforce table pipe padding/alignment style (cosmetic; tables render fine).
+MD060: false
