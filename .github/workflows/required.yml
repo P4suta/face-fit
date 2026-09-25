@@ -1,7 +1,9 @@
 ---
-# The one status check branch protection requires, identical in every P4suta repository.
-# It waits until every other check on the pull request's head commit has finished,
-# then fails if any of them failed, so the ruleset never has to list a repository's own job names.
+# The one status check branch protection requires,
+# identical in every P4suta repository.
+# It waits until every other check on the head commit has finished,
+# then fails if any of them failed,
+# so the ruleset never has to list a repository's own job names.
 name: required
 
 on:
@@ -28,33 +30,48 @@ jobs:
           SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          # Checks start within seconds of the pull request event; the first pause lets them register.
+          api="repos/${REPO}/commits/${SHA}"
+          runs_jq='.check_runs[] | select(.name != "required")
+            | "\(.name)\t\(.status)\t\(.conclusion // "")"'
+          status_jq='.statuses[] | "\(.context)\t\(.state)"'
+          # Checks register within seconds of the pull request event.
           sleep 45
           previous=""
           while :; do
-            runs=$(gh api --paginate "repos/$REPO/commits/$SHA/check-runs?filter=latest&per_page=100" \
-              --jq '.check_runs[] | select(.name != "required") | "\(.name)\t\(.status)\t\(.conclusion // "")"' | sort)
-            statuses=$(gh api "repos/$REPO/commits/$SHA/status?per_page=100" \
-              --jq '.statuses[] | "\(.context)\t\(.state)"' | sort)
-            pending=$(printf '%s\n' "$runs" | awk -F'\t' 'NF && $2 != "completed"' | wc -l)
-            pending=$((pending + $(printf '%s\n' "$statuses" | awk -F'\t' 'NF && $2 == "pending"' | wc -l)))
-            snapshot="$runs"$'\n'"$statuses"
-            if [ "$pending" -eq 0 ] && [ "$snapshot" = "$previous" ]; then
-              break
+            runs=$(gh api --paginate "${api}/check-runs?filter=latest" \
+              --jq "${runs_jq}" | sort)
+            statuses=$(gh api "${api}/status" --jq "${status_jq}" | sort)
+            running=$(printf '%s\n' "${runs}" \
+              | awk -F'\t' 'NF && $2 != "completed"' | wc -l)
+            queued=$(printf '%s\n' "${statuses}" \
+              | awk -F'\t' 'NF && $2 == "pending"' | wc -l)
+            pending=$((running + queued))
+            snapshot="${runs}"$'\n'"${statuses}"
+            # Finish only when nothing is running,
+            # and nothing new appeared since the last look.
+            if [[ "${pending}" -eq 0 ]]; then
+              if [[ "${snapshot}" == "${previous}" ]]; then
+                break
+              fi
+              previous=${snapshot}
+            else
+              previous=""
             fi
-            previous=$([ "$pending" -eq 0 ] && printf '%s' "$snapshot" || true)
-            echo "waiting: $pending check(s) still running"
+            echo "waiting: ${pending} check(s) still running"
             sleep 30
           done
+          ok='^(success|neutral|skipped)$'
           failed=$(
-            printf '%s\n' "$runs" | awk -F'\t' 'NF && $3 !~ /^(success|neutral|skipped)$/ {print $1 " (" $3 ")"}'
-            printf '%s\n' "$statuses" | awk -F'\t' 'NF && $2 != "success" {print $1 " (" $2 ")"}'
+            printf '%s\n' "${runs}" \
+              | awk -F'\t' -v ok="${ok}" 'NF && $3 !~ ok {print $1}'
+            printf '%s\n' "${statuses}" \
+              | awk -F'\t' 'NF && $2 != "success" {print $1}'
           )
           echo "checks seen:"
-          printf '%s\n' "$runs" | awk -F'\t' 'NF {print "  " $1 ": " $3}'
-          printf '%s\n' "$statuses" | awk -F'\t' 'NF {print "  " $1 ": " $2}'
-          if [ -n "$failed" ]; then
+          printf '%s\n' "${runs}" | awk -F'\t' 'NF {print "  " $1 ": " $3}'
+          printf '%s\n' "${statuses}" | awk -F'\t' 'NF {print "  " $1 ": " $2}'
+          if [[ -n "${failed}" ]]; then
             echo "::error::failed checks:"
-            printf '  %s\n' "$failed"
+            printf '  %s\n' "${failed}"
             exit 1
           fi
