@@ -22,6 +22,7 @@ def tests(session: nox.Session) -> None:
     session.run_install(
         "uv",
         "sync",
+        "--frozen",
         "--group",
         "dev",
         env={"UV_PROJECT_ENVIRONMENT": session.virtualenv.location},
@@ -32,7 +33,14 @@ def tests(session: nox.Session) -> None:
 @nox.session(python="3.13")
 def lint(session: nox.Session) -> None:
     """Lint and format-check with ruff."""
-    session.install("ruff")
+    session.run_install(
+        "uv",
+        "sync",
+        "--frozen",
+        "--group",
+        "dev",
+        env={"UV_PROJECT_ENVIRONMENT": session.virtualenv.location},
+    )
     session.run("ruff", "check", ".")
     session.run("ruff", "format", "--check", ".")
 
@@ -43,6 +51,7 @@ def type(session: nox.Session) -> None:
     session.run_install(
         "uv",
         "sync",
+        "--frozen",
         "--group",
         "dev",
         env={"UV_PROJECT_ENVIRONMENT": session.virtualenv.location},
@@ -56,6 +65,7 @@ def docs(session: nox.Session) -> None:
     session.run_install(
         "uv",
         "sync",
+        "--frozen",
         "--group",
         "docs",
         env={"UV_PROJECT_ENVIRONMENT": session.virtualenv.location},

@@ -17,6 +17,7 @@ import json
 import os
 import threading
 import time
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Annotated
@@ -37,7 +38,7 @@ from .core import (
     open_file,
 )
 from .landmarks import FaceDetector
-from .presets import PRESETS
+from .presets import PRESETS, Spec
 
 app = typer.Typer(
     name="face-fit",
@@ -138,6 +139,7 @@ def fit(
     output: Annotated[
         Path | None, typer.Argument(help="output JPEG (default: <stem>_fitted.jpg)")
     ] = None,
+    *,
     preset: PresetOpt = "id-photo",
     width: WidthOpt = None,
     height: HeightOpt = None,
@@ -200,7 +202,7 @@ def _plan_batch(
 
 def _run_batch(
     tasks: list[tuple[Path, Path]],
-    spec,
+    spec: Spec,
     *,
     render_scale: int,
     quality: int,
@@ -228,7 +230,7 @@ def _run_batch(
             f, out, spec, render_scale=render_scale, quality=quality, debug=debug, detector=detector
         )
 
-    def run_pool(on_done) -> None:
+    def run_pool(on_done: Callable[[], None]) -> None:
         with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
             futures = {pool.submit(work, t): t for t in tasks}
             for fut in futures:
@@ -261,6 +263,7 @@ def _run_batch(
 @app.command()
 def batch(
     inputs: Annotated[list[str], typer.Argument(help="images, directories or glob patterns")],
+    *,
     output_dir: Annotated[Path, typer.Option("-o", "--output-dir", help="destination directory")],
     preset: PresetOpt = "id-photo",
     width: WidthOpt = None,

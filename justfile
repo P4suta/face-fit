@@ -1,6 +1,8 @@
 # face-fit task runner. Run `just` to list recipes.
 # Tooling is pinned in mise.toml; run `just setup` once after cloning.
 
+set windows-shell := ["pwsh", "-NoProfile", "-Command"]
+
 # List recipes.
 default:
     @just --list

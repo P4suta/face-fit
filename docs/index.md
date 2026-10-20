@@ -22,8 +22,8 @@ and does **no retouching** of skin or color, because the requirements forbid
 ## Quick start
 
 ```sh
-uv sync
-uv run face-fit "input.jpg" -o "output.jpg"
+uv sync --frozen
+uv run --frozen face-fit fit input.jpg output.jpg
 ```
 
 See [Usage](usage.md) and [How it works](how-it-works.md) for details.

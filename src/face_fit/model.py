@@ -29,7 +29,7 @@ def ensure_model() -> Path:
         return path
 
     tmp = path.with_suffix(".task.part")
-    with urllib.request.urlopen(_MODEL_URL) as resp:  # noqa: S310 (trusted Google CDN)
+    with urllib.request.urlopen(_MODEL_URL) as resp:
         data = resp.read()
     tmp.write_bytes(data)
     tmp.replace(path)
