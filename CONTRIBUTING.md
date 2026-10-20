@@ -16,8 +16,8 @@ mise install      # provision uv / just / lefthook / typos / committed / taplo /
 just setup        # uv sync --all-groups + lefthook install (git hooks)
 ```
 
-> The Python interpreter is chosen by uv from `.python-version` (3.13); the
-> supported range is 3.10 to latest (3.14).
+UV selects Python 3.14 from `.python-version` for local development.
+CI tests Python 3.10 through 3.14.
 
 ## Everyday commands
 

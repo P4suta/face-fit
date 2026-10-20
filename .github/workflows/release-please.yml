@@ -42,6 +42,8 @@ jobs:
         with:
           app-id: ${{ secrets.RELEASE_PLEASE_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: release-please
         if: env.HAS_APP == 'true'
