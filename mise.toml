@@ -1,10 +1,10 @@
 [tools]
 uv = "0.13.3"
-just = "1"
-lefthook = "2"
-"cargo:typos-cli" = "1"
-"cargo:committed" = "1"
-"cargo:taplo-cli" = "0.10"
+just = "1.59.0"
+lefthook = "2.2.2"
+"github:crate-ci/typos" = "1.51.1"
+"cargo:committed" = "1.1.11"
+"cargo:taplo-cli" = "0.10.0"
 "github:rhysd/actionlint" = "1.7.12"
 
 [settings]
