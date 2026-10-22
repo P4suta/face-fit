@@ -42,6 +42,7 @@ nav:
       - 0004 Detect-once architecture: adr/0004-detect-once-architecture.md
       - 0005 Typer + Rich CLI: adr/0005-typer-rich-cli.md
       - 0006 Support Python 3.10 to latest: adr/0006-support-python-3.10-to-latest.md
+      - Require supported Pillow on Python 3.11: adr/require-supported-pillow-on-python-3.11.md
       - ADR template: adr/0000-template.md
 
 plugins:

@@ -19,12 +19,12 @@ to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- CLI rewritten with **Typer + Rich**. Single-image use is now `face-fit fit INPUT`
-  (was `face-fit INPUT -o OUTPUT`). Rich output shows a PASS/FAIL face-ratio badge.
+- Require Python 3.11 or newer and Pillow 13.0.0 or newer for the supported dependency fixes.
+- CLI rewritten with **Typer + Rich**. Single-image use is now `face-fit fit INPUT` (was `face-fit INPUT -o OUTPUT`).
+  Rich output shows a PASS/FAIL face-ratio badge.
 - Relicensed from MIT to **Apache-2.0**.
 - Adopted house tooling: mise + lefthook + typos + committed (Conventional Commits)
-  + justfile, with release-please, CodeQL, OpenSSF Scorecard and OSV-Scanner CI and
-  MADR architecture decision records.
+  + justfile, with release-please, CodeQL, OpenSSF Scorecard and OSV-Scanner CI and MADR architecture decision records.
 
 ## [0.1.0] - 2026-06-30
 
