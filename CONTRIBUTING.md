@@ -17,7 +17,7 @@ just setup        # uv sync --all-groups + lefthook install (git hooks)
 ```
 
 UV selects Python 3.14 from `.python-version` for local development.
-CI tests Python 3.10 through 3.14.
+CI tests Python 3.11 through 3.14.
 
 ## Everyday commands
 

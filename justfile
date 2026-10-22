@@ -37,7 +37,7 @@ test:
 test-integration:
     uv run pytest -m integration
 
-# Run the unit tests on every supported Python (3.10–3.14).
+# Run the unit tests on every supported Python (3.11–3.14).
 test-all:
     uv run nox -s tests
 

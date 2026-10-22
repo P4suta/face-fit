@@ -11,7 +11,8 @@ ADR is never edited — it is *superseded* by a later ADR that links back.
 | [0003](./adr/0003-mediapipe-landmarker-and-crown-segmentation.md) | MediaPipe FaceLandmarker + crown segmentation | accepted |
 | [0004](./adr/0004-detect-once-architecture.md)                 | Detect-once architecture (reusable FaceDetector) | accepted |
 | [0005](./adr/0005-typer-rich-cli.md)                           | Typer + Rich CLI                                 | accepted |
-| [0006](./adr/0006-support-python-3.10-to-latest.md)            | Support Python 3.10 through the latest release   | accepted |
+| [0006](./adr/0006-support-python-3.10-to-latest.md)            | Support Python 3.10 through the latest release   | partly superseded |
+| [Python 3.11](./adr/require-supported-pillow-on-python-3.11.md) | Require supported Pillow on Python 3.11 | accepted |
 
 ## Authoring a new ADR
 

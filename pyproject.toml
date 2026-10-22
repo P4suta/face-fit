@@ -3,7 +3,7 @@ name = "face-fit"
 version = "0.1.0"
 description = "Auto-fit a photo into an ID-photo composition (face 70-80%, centered, level)."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [{ name = "P4suta" }]
@@ -23,7 +23,6 @@ classifiers = [
     "Intended Audience :: End Users/Desktop",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -35,7 +34,7 @@ classifiers = [
 dependencies = [
     "mediapipe>=0.10.14",
     "numpy>=1.26",
-    "pillow>=10.2",
+    "pillow>=13.0.0",
     "opencv-python>=4.9",
     "typer>=0.12",
     "rich>=13",
@@ -76,7 +75,7 @@ packages = ["src/face_fit"]
 # Ruff: lint + format
 # ---------------------------------------------------------------------------
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 line-length = 100
 src = ["src", "tests"]
 
