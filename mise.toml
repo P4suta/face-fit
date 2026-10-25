@@ -1,5 +1,5 @@
 [tools]
-uv = "0.13.3"
+uv = "0.13.5"
 just = "1.59.0"
 lefthook = "2.2.2"
 "github:crate-ci/typos" = "1.51.1"
