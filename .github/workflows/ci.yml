@@ -1,12 +1,10 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
+  merge_group:
   pull_request:
   workflow_dispatch:
 
-# Cancel superseded PR runs; never cancel main (post-merge lineage).
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -18,6 +16,7 @@ permissions:
 jobs:
   # Cheap ubuntu hygiene tier — no deps, fast fail signal.
   hygiene:
+    name: hygiene
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -45,6 +44,7 @@ jobs:
 
   # Python lint + type check.
   quality:
+    name: quality
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -68,11 +68,12 @@ jobs:
 
   # Conventional-Commits PR title (authoritative gate for squash-merges).
   pr-title:
+    name: pr-title
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      pull-requests: read
+      pull-requests: read  # Read the pull request title.
     steps:
       - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
         env:
@@ -82,11 +83,12 @@ jobs:
   # cannot merge until a human adds "release: approved" — cutting a release is an
   # explicit act, not an accidental merge. Every non-release PR passes.
   release-gate:
+    name: release-gate
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      pull-requests: read
+      pull-requests: read  # Read the release approval labels.
     steps:
       - name: Require an explicit approval label on a Release PR
         env:
@@ -137,14 +139,17 @@ jobs:
   # gating job (hygiene, quality, the whole test matrix) succeeded. Skipped
   # PR-only jobs (pr-title, release-gate) are intentionally not gated here.
   ci-required:
+    name: ci-required
     if: always()
     needs: [hygiene, quality, test]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Verify required jobs succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
         run: |
-          if echo "${{ join(needs.*.result, ',') }}" | grep -qE 'failure|cancelled'; then
+          if echo "${RESULTS}" | grep -qE 'failure|cancelled'; then
             echo "::error::a required job failed or was cancelled"
             exit 1
           fi
