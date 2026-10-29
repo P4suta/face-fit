@@ -1,6 +1,6 @@
 [project]
 name = "face-fit"
-version = "0.1.0"
+version = "0.1.1"
 description = "Auto-fit a photo into an ID-photo composition (face 70-80%, centered, level)."
 readme = "README.md"
 requires-python = ">=3.11"
