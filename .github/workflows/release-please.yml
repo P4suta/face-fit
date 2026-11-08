@@ -1,15 +1,4 @@
-# release-please — the version/CHANGELOG/tag bot.
-#
-# Conventional Commits land on main -> this action keeps a "Release PR" open that
-# bumps the version in pyproject.toml + src/face_fit/__init__.py and updates
-# CHANGELOG.md (python release-type). Merging that PR cuts a `vX.Y.Z` tag and a
-# GitHub Release. The human gate is the "release: approved" label (see ci.yml's
-# release-gate job and CONTRIBUTING.md).
-#
-# Runs as a GitHub App (not GITHUB_TOKEN) so its tag push is allowed by the
-# protect-version-tags ruleset's App bypass, making the App the single authorized
-# creator of `v*` tags. Credentials live in the `release-please` environment
-# (deployment branch policy: main only). With the secrets unset the job no-ops.
+# Credential delivery follows docs/credential-delivery.md.
 name: release-please
 
 on:
@@ -26,34 +15,28 @@ permissions:
 
 jobs:
   release-please:
+    name: release-please
+    if: >-
+      github.repository_id == '1285246258' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: release-please
     permissions:
-      id-token: write
-      contents: write # create the release commit, tag and GitHub Release
-      pull-requests: write # open / maintain the Release PR
+      contents: read  # The App token authorizes release proposals.
     env:
-      HAS_APP: ${{ vars.DOPPLER_AUTOMATION_IDENTITY_ID != '' }}
+      HAS_APP: >-
+        ${{ secrets.RELEASE_PLEASE_CLIENT_ID != '' ||
+        secrets.RELEASE_PLEASE_PRIVATE_KEY != '' }}
+      APP_INPUTS_VALID: >-
+        ${{ secrets.RELEASE_PLEASE_CLIENT_ID != '' &&
+        !startsWith(secrets.RELEASE_PLEASE_CLIENT_ID, '${') &&
+        secrets.RELEASE_PLEASE_PRIVATE_KEY != '' &&
+        !startsWith(secrets.RELEASE_PLEASE_PRIVATE_KEY, '${') }}
     steps:
-      - name: Fetch automation credentials
-        id: doppler_automation_0
-        if: "env.HAS_APP == 'true'"
-        uses: dopplerhq/secrets-fetch-action@451892f16195f9ac360e1a5bcbf0b5fd0e957534
-        with:
-          auth-method: oidc
-          doppler-identity-id: ${{ vars.DOPPLER_AUTOMATION_IDENTITY_ID }}
-          doppler-project: face-fit
-          doppler-config: automation
-          inject-env-vars: false
       - name: Reject missing or unresolved automation credentials
-        if: >-
-          ${{ steps.doppler_automation_0.outcome == 'success' && (
-          steps.doppler_automation_0.outputs.GITHUB_APP_CLIENT_ID == '' ||
-          startsWith(steps.doppler_automation_0.outputs.GITHUB_APP_CLIENT_ID, '${') ||
-          steps.doppler_automation_0.outputs.GITHUB_APP_PRIVATE_KEY == '' ||
-          startsWith(steps.doppler_automation_0.outputs.GITHUB_APP_PRIVATE_KEY, '${')
-          ) }}
+        if: env.HAS_APP == 'true' && env.APP_INPUTS_VALID != 'true'
         shell: bash
         run: exit 1
 
@@ -62,8 +45,10 @@ jobs:
         if: env.HAS_APP == 'true'
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          client-id: ${{ steps.doppler_automation_0.outputs.GITHUB_APP_CLIENT_ID }}
-          private-key: ${{ steps.doppler_automation_0.outputs.GITHUB_APP_PRIVATE_KEY }}
+          client-id: ${{ secrets.RELEASE_PLEASE_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: face-fit
           permission-contents: write
           permission-pull-requests: write
 

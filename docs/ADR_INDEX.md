@@ -1,24 +1,20 @@
-# Architecture Decision Records
+# Architecture decisions
 
-This directory holds [MADR 4.0](https://adr.github.io/madr/)
-Architecture Decision Records. Each file documents one decision; once accepted an
-ADR is never edited — it is *superseded* by a later ADR that links back.
+The repository uses [Markdown Architectural Decision Records](https://adr.github.io/madr/).
+Each record documents one decision.
+A successor links to the accepted record when a decision changes.
 
-| ADR                                                            | Title                                            | Status   |
-| -------------------------------------------------------------- | ------------------------------------------------ | -------- |
-| [0001](./adr/0001-record-architecture-decisions.md)            | Record architecture decisions                    | accepted |
-| [0002](./adr/0002-geometric-edits-only.md)                     | Geometric edits only — no retouching             | accepted |
-| [0003](./adr/0003-mediapipe-landmarker-and-crown-segmentation.md) | MediaPipe FaceLandmarker + crown segmentation | accepted |
-| [0004](./adr/0004-detect-once-architecture.md)                 | Detect-once architecture (reusable FaceDetector) | accepted |
-| [0005](./adr/0005-typer-rich-cli.md)                           | Typer + Rich CLI                                 | accepted |
-| [0006](./adr/0006-support-python-3.10-to-latest.md)            | Support Python 3.10 through the latest release   | partly superseded |
-| [Python 3.11](./adr/require-supported-pillow-on-python-3.11.md) | Require supported Pillow on Python 3.11 | accepted |
+Accepted records cover [recording decisions](./adr/0001-record-architecture-decisions.md) and [geometric edits](./adr/0002-geometric-edits-only.md).
+Accepted records also cover the [landmark model](./adr/0003-mediapipe-landmarker-and-crown-segmentation.md), [detector reuse](./adr/0004-detect-once-architecture.md), and [command interface](./adr/0005-typer-rich-cli.md).
 
-## Authoring a new ADR
+The [Python compatibility record](./adr/0006-support-python-3.10-to-latest.md) remains partly superseded.
+The accepted [Python 3.11 decision](./adr/require-supported-pillow-on-python-3.11.md) requires supported dependencies.
 
-1. Copy `adr/0000-template.md` to `adr/NNNN-short-slug.md` with the next
-   sequential number.
-2. Fill in the sections; keep paragraphs short and action-oriented.
-3. Add a row to the table above.
-4. Open a PR. ADRs are normally accepted on merge; controversial ones are landed
-   as `proposed` and flipped to `accepted` once the discussion concludes.
+The [release App credential delivery decision](./adr/sync-release-app-credentials-to-the-protected-environment.md) remains proposed.
+
+## Authoring records
+
+Use the [template](./adr/0000-template.md) for a concise decision record.
+Name the file after the decision and include a front-matter date.
+Link the record from the index and documentation navigation.
+Keep the record proposed until the owner accepts the reviewed decision.
