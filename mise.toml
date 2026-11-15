@@ -2,7 +2,7 @@
 uv = "0.13.7"
 just = "1.59.0"
 lefthook = "2.2.2"
-"github:crate-ci/typos" = "1.52.0"
+"github:crate-ci/typos" = "1.52.2"
 "cargo:committed" = "1.1.12"
 "cargo:taplo-cli" = "0.10.0"
 "github:rhysd/actionlint" = "1.7.12"
