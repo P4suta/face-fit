@@ -118,7 +118,7 @@ root = ["src"]
 
 [tool.ty.rules]
 # cv2 / mediapipe ship no type stubs; keep unresolved attributes a warning.
-unresolved-attribute = "warn"
+missing-attribute = "warn"
 
 # ---------------------------------------------------------------------------
 # pytest + coverage
